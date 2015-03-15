@@ -120,6 +120,7 @@ class Post(object):
         content = markdown2.markdown(rest_text, extras={'code-friendly': True, 'fenced-code-blocks': pygments_options, 'footnotes': True, 'math_delimiter': math_delimiter if is_math else None})
         # Process <code lang="programming-lang"></code> blocks or spans.
         content = self._format_code_lang(content)
+        self.body = content
         self.html = format(template, title=self.title, date=self.date.strftime('%Y-%m-%d'), monthly_archive_url=os.path.dirname(self.permalink) + '/', year=self.date.strftime('%Y'), month=self.date.strftime('%B'), day=self.date.strftime('%d'), tags=', '.join('<a href="/tags/{tag}">{tag}</a>'.format(tag=tag) for tag in self.tags), permalink=self.permalink, excerpt=self.excerpt, content=content)
         # Load MathJax for post with math tag.
         if is_math:
@@ -274,7 +275,7 @@ class MonthlyArchive(object):
         post_template = posts_match.group(1)
         post_list = []
         for post in self.posts:
-            post_list.append(format(post_template, title=post.title, date=post.date.strftime('%Y-%m-%d'), pretty_date=post.pretty_date, permalink=post.permalink, excerpt=post.excerpt))
+            post_list.append(format(post_template, title=post.title, date=post.date.strftime('%Y-%m-%d'), pretty_date=post.pretty_date, permalink=post.permalink, excerpt=post.excerpt, body=post.body))
         index = header + ''.join(post_list) + template[posts_match.end():]
         return index
 
@@ -382,7 +383,7 @@ class TimelineArchive(object):
         for post in self.posts:
             if not post:
                 break
-            post_list.append(format(post_template, title=post.title, date=post.date.strftime('%Y-%m-%d'), pretty_date=post.pretty_date, permalink=post.permalink, excerpt=post.excerpt))
+            post_list.append(format(post_template, title=post.title, date=post.date.strftime('%Y-%m-%d'), pretty_date=post.pretty_date, permalink=post.permalink, excerpt=post.excerpt, body=post.body))
         index = template[:posts_match.start()] + ''.join(post_list) + footer
         return index
 
